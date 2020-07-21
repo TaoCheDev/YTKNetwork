@@ -79,6 +79,8 @@ typedef void (^AFURLSessionTaskDidFinishCollectingMetricsBlock)(NSURLSession *se
 ///  NSURLSessionTaskMetrics
 @property (nonatomic, strong) AFURLSessionTaskDidFinishCollectingMetricsBlock collectingMetricsBlock API_AVAILABLE(ios(10), macosx(10.12), watchos(3), tvos(10));
 
+@property (nonatomic, strong) NSDictionary *certificateHostDict; /**< 需要验证证书的域名及对应的内置证书文件名 */
+
 ///  Add a new URL filter.
 - (void)addUrlFilter:(id<YTKUrlFilterProtocol>)filter;
 ///  Remove all URL filters.
