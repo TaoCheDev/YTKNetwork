@@ -65,11 +65,11 @@
         
         NSMutableArray *managers = [NSMutableArray array];
         
-        [managers addObject:[self sessionManagerWithBaseUrl:nil certificateName:nil]];
+        [managers addObject:[self sessionManagerWithBaseUrl:nil certificateSet:nil]];
         for (int i = 0; i < [YTKNetworkConfig sharedConfig].certificateHostDict.allKeys.count; i++) {
             NSString *host = [YTKNetworkConfig sharedConfig].certificateHostDict.allKeys[i];
-            NSString *certificateName = [YTKNetworkConfig sharedConfig].certificateHostDict[host];
-            AFHTTPSessionManager *manager = [self sessionManagerWithBaseUrl:host certificateName:certificateName];
+            NSSet *certificateSet = [YTKNetworkConfig sharedConfig].certificateHostDict[host];
+            AFHTTPSessionManager *manager = [self sessionManagerWithBaseUrl:host certificateSet:certificateSet];
             [managers addObject:manager];
         }
         _managers = managers;
@@ -82,17 +82,14 @@
     return self;
 }
 
-- (AFHTTPSessionManager *)sessionManagerWithBaseUrl:(NSString *)baseUrl certificateName:(NSString *)certificateName {
+- (AFHTTPSessionManager *)sessionManagerWithBaseUrl:(NSString *)baseUrl certificateSet:(NSSet *)certificateSet {
    
     AFHTTPSessionManager *manager = nil;
     
-    if (baseUrl && certificateName.length > 0) {
+    if (baseUrl && certificateSet) {
         manager = [[AFHTTPSessionManager alloc] initWithBaseURL:[NSURL URLWithString:baseUrl] sessionConfiguration:_config.sessionConfiguration];
         AFSecurityPolicy *securityPolicy = [AFSecurityPolicy policyWithPinningMode:AFSSLPinningModePublicKey];
-        NSString *cerPath = [[NSBundle mainBundle] pathForResource:certificateName ofType:@"cer"];
-        NSData *certData = [NSData dataWithContentsOfFile:cerPath];
-        NSSet *set = [[NSSet alloc] initWithObjects:certData, nil];
-        securityPolicy.pinnedCertificates = set;
+        securityPolicy.pinnedCertificates = certificateSet;
         manager.securityPolicy = securityPolicy;
     } else {
         manager = [[AFHTTPSessionManager alloc] initWithSessionConfiguration:_config.sessionConfiguration];
